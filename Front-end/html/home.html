@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Số nguyên tố</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/soNguyenTo.js"></script>
+    <style>
+                /* button */
+        button {
+        z-index: 1;
+        position: relative;
+        font-size: inherit;
+        font-family: inherit;
+        color: white;
+        padding: 0.5em 1em;
+        outline: none;
+        border: none;
+        border-radius: 5px;
+        background-color: hsl(357, 100%, 65%);
+        }
+
+        button:hover {
+        cursor: pointer;
+        }
+
+        button::before {
+        content: '';
+        z-index: -1;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border: 4px solid hsl(357, 100%, 65%);
+        transform-origin: center;
+        transform: scale(1);
+        }
+
+        button:hover::before {
+        transition: all 0.75s ease-in-out;
+        transform-origin: center;
+        transform: scale(1.75);
+        opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <button id="connect" style="display: block; margin-left: 85%; margin-top: 50px;">Connect metamask</button>
+        <div>    
+            <p id="account" style="display: none"></p>
+            <p id="balanceVal"></p>
+            <p id="balanceBNBVal"></p>  
+        </div>
+    </div>
+    
+    
+   <div style="text-align: center;">
+    <h1>Số nguyên tố</h1>
+    <span style="font-weight: bold; font-size:25px;">N = </span>
+    <input style="width: 350px; height: 40px; font-size:20px; border-radius: 8px;" type="number" placeholder="Nhập số nguyên tố*" id="input-number"/><br>
+    <button style="margin-top: 20px; border-radius: 5px;" id="btn-check">Kết quả</button><br>
+    <h1 style="margin-top: 20px; color: blue;"id="show">....</h1>
+    
+</div>
+   </div>
+    
+</body>
+<script type="application/javascript">
+    if (typeof window.ethereum !== 'undefined') {
+        console.log('MetaMask is installed!');
+    }
+
+    async function connectMetamask() {
+        if (typeof web3 !== 'undefined') {
+            window.web3 = new Web3(web3.currentProvider);
+        } else {
+            console.log('No web3? You should consider trying MetaMask!');
+            window.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+        }
+        if (window.ethereum) {
+            await ethereum.enable();
+        }
+        let accountsOnEnable = await ethereum.request({method: 'eth_requestAccounts'});
+        console.log('accountsOnEnable', accountsOnEnable);
+        window.account = accountsOnEnable[0];
+
+        let x = document.getElementById("account");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+            let connect = document.getElementById("connect");
+            connect.style.display = "block";
+        x.innerText = "Connect Success!"
+        } else {
+            x.style.display = "none";
+
+        }
+
+    }
+
+    document.getElementById("connect").addEventListener("click", connectMetamask);
+
+    async function getResult() {
+            if (typeof web3 !== 'undefined') {
+                web3 = new Web3(web3.currentProvider);
+            } else {
+                web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+            }
+            if (window.ethereum) {
+                await ethereum.enable();
+            }
+            let accountsOnEnable = await ethereum.request({ method: 'eth_requestAccounts' });
+            let contractsoNguyenTo = getContractInstance(Config.Abi, Config.Address);
+            console.log(contractsoNguyenTo);
+            let value = document.getElementById("input-number").value;
+            printFirstPrime(contractsoNguyenTo, value).then(data => {
+                document.getElementById("show").innerText = data;
+            });
+        }
+        document.getElementById("btn-check").addEventListener("click", getResult);
+            
+</script>
+</html>
